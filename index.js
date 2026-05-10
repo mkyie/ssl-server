@@ -9,7 +9,7 @@ const DOMAIN = process.env.DOMAIN || 'slackbot.kamayie.org';
 const EMAIL = process.env.EMAIL || 'admin@example.com';
 const STAGING = process.env.STAGING === 'true';
 const NEW_CERT = process.env.NEW_CERT === 'true';
-const CERTS_DIR = path.join(__dirname, 'certs');
+const CERTS_DIR = path.join(__dirname, 'certs', DOMAIN);
 
 // Challenge tokens storage for HTTP-01 validation
 const challengeTokens = {};
@@ -149,6 +149,8 @@ async function renewCertificate() {
             accountKey: await acme.forge.createPrivateKey()
         });
 
+        client.logger = console; // Enable logging for debugging
+
         // Register account
         console.log('\nRegistering ACME account...');
         await client.createAccount({
@@ -162,6 +164,8 @@ async function renewCertificate() {
         const [key, csr] = await acme.forge.createCsr({
             commonName: DOMAIN
         });
+
+        console.log('CSR generated successfully: ' + csr.toString('base64').slice(0, 30) + '...');
 
         // Order certificate
         console.log('\nOrdering certificate...');
